@@ -272,8 +272,8 @@
             console.log(id);
             $(`#dropdownOpsi_${id}`).removeClass('uk-open');
             setTimeout(() => {
-                $('.uk-modal-footer.uk-modal-close').text('Batalkan');
-                $('.uk-modal-footer.uk-button-primary').text('Ya');
+                $('.uk-modal-footer button.uk-modal-close').text('Batalkan');
+                $('.uk-modal-footer button.uk-button-primary').text('Ya');
             }, 100);
             UIkit.modal.confirm('Apakah anda yakin menghapus data ?', {
                 labels: {
@@ -310,8 +310,8 @@
 
         function btnModal() {
             setTimeout(() => {
-                $('.uk-modal-footer.uk-modal-close').text('Batalkan');
-                $('.uk-modal-footer.uk-button-primary').text('Submit');
+                $('.uk-modal-footer button.uk-modal-close').text('Batalkan');
+                $('.uk-modal-footer button.uk-button-primary').text('Submit');
             }, 100);
         }
 
@@ -350,6 +350,8 @@
                         modal.hide();
                         onNotif(response.message);
                         reloadData()
+                    } else {
+                        showInvalidBE(response);
                     }
                 },
                 error: function(xhr) {
@@ -410,7 +412,10 @@
                         modal.hide();
                         onNotif(response.message);
                         reloadData()
+                    } else {
+                        showInvalidBE(response);
                     }
+                    console.log(response)
                 },
                 error: function(xhr) {
                     console.error('Error submitting data:', xhr.responseText);
@@ -419,6 +424,20 @@
                     btnSubmit.prop('disabled', false).html('submit');
                 }
             });
+        }
+
+        function showInvalidBE(response) {
+            let info = `<p>${response.message}</p>`;
+            if (response.errors) {
+                let errors = response.errors;
+                for (const field in errors) {
+                    errors[field].forEach(error => {
+                        info += `<p>${error}</p>`;
+                    });
+                }
+            }
+            const alert = elAlert.replace('pesan', info);
+            notifAlertModal.html(alert);
         }
 
         function onTelp() {

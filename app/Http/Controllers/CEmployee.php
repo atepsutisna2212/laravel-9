@@ -7,6 +7,7 @@ use App\Models\MEmployee;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class CEmployee extends Controller
 {
@@ -64,6 +65,29 @@ class CEmployee extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    private function getValid(Request $request, $id = 0)
+    {
+        // dd($request);
+        $cek = Validator::make($request->all(), [
+            'nip' => 'required|unique:tb_karyawan,nip,' . $id . ',id_karyawan',
+            'nama_karyawan' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:255',
+            'alamat' => 'required',
+            'telp' => 'required|numeric',
+            'email' => 'required|email|unique:tb_karyawan,email,' . $id . ',id_karyawan',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+        if ($cek->fails()) {
+            return [
+                'result' => true,
+                "message" => $cek->errors()
+            ];
+        }
+        return [
+            'result' => false,
+            'message' => ""
+        ];
+    }
     public function store(Request $request)
     {
         try {
@@ -78,6 +102,15 @@ class CEmployee extends Controller
                 $path = $file->storeAs('public/employee', $randomName);
                 $namaFile = "storage/employee/" . $randomName;
             }
+            $cek = $this->getValid($request);
+            if ($cek['result']) {
+                return response()->json([
+                    'result' => false,
+                    'message' => "Invalid input :",
+                    'errors' => $cek['message']
+                ]);
+            }
+
             $data = [
                 'nip' => $request->input('nip'),
                 'nama_karyawan' => $request->input('nama_karyawan'),
@@ -150,6 +183,14 @@ class CEmployee extends Controller
                     Storage::delete(str_replace('storage/', 'public/', $employee->foto));
                 }
             }
+            $cek = $this->getValid($request, $employee->id_karyawan);
+            if ($cek['result']) {
+                return response()->json([
+                    'result' => false,
+                    'message' => "Invalid input :",
+                    'errors' => $cek['message']
+                ]);
+            }
             $data = [
                 'nip' => $request->input('nip'),
                 'nama_karyawan' => $request->input('nama_karyawan'),
@@ -168,6 +209,7 @@ class CEmployee extends Controller
                 'data' => $employee
             ]);
         } catch (Exception $ex) {
+            dd($ex);
             return response()->json([
                 "result" => false,
                 "message" => $ex->getMessage()

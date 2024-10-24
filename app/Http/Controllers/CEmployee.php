@@ -29,7 +29,6 @@ class CEmployee extends Controller
         $searchNip = $request->input('searchNip');
         $searchNamaKaryawan = $request->input('searchNamaKaryawan');
         $searchJabatan = $request->input('searchJabatan');
-        // dd($request->all());
         $query = MEmployee::query();
         if ($searchNip) {
             $query->where('nip', 'like', '%' . $searchNip . '%');
@@ -67,7 +66,6 @@ class CEmployee extends Controller
      */
     private function getValid(Request $request, $id = 0)
     {
-        // dd($request);
         $cek = Validator::make($request->all(), [
             'nip' => 'required|unique:tb_karyawan,nip,' . $id . ',id_karyawan',
             'nama_karyawan' => 'required|string|max:255',
@@ -144,7 +142,6 @@ class CEmployee extends Controller
      */
     public function show(MEmployee $employee)
     {
-        // dd($employee->nama_karyawan);
         return view('employee.detail', [
             'employee' => $employee,
         ]);
@@ -171,7 +168,6 @@ class CEmployee extends Controller
     public function update(Request $request, MEmployee $employee)
     {
         try {
-            // dd($request->all());
             $file = $request->file('foto');
             $namaFile = $employee->foto;
             if ($file) {
@@ -209,7 +205,6 @@ class CEmployee extends Controller
                 'data' => $employee
             ]);
         } catch (Exception $ex) {
-            dd($ex);
             return response()->json([
                 "result" => false,
                 "message" => $ex->getMessage()
